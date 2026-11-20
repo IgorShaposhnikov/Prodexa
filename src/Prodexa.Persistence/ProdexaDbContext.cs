@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Prodexa.Core.Importing;
 using Prodexa.Core.Production;
 using Prodexa.Core.Materials;
 using Prodexa.Core.Resources;
@@ -72,6 +73,11 @@ public sealed class ProdexaDbContext : DbContext
     /// Norm versions explicitly assigned to production task revisions.
     /// </summary>
     public DbSet<PlanTaskNorm> PlanTaskNorms { get; set; } = null!;
+
+    /// <summary>
+    /// Source revisions used for idempotent imports and record provenance.
+    /// </summary>
+    public DbSet<SourceRecord> SourceRecords { get; set; } = null!;
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
