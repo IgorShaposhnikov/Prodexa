@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Prodexa.Core.Production;
+using Prodexa.Core.Materials;
 using Prodexa.Core.Resources;
 using Prodexa.Persistence.Converters;
 
@@ -41,6 +42,21 @@ public sealed class ProdexaDbContext : DbContext
     /// Recorded downtime events.
     /// </summary>
     public DbSet<Downtime> Downtimes { get; set; } = null!;
+
+    /// <summary>
+    /// Stable material definitions referenced by production lots.
+    /// </summary>
+    public DbSet<MaterialDefinition> MaterialDefinitions { get; set; } = null!;
+
+    /// <summary>
+    /// Physical or logical lots used by production events.
+    /// </summary>
+    public DbSet<MaterialLot> MaterialLots { get; set; } = null!;
+
+    /// <summary>
+    /// Accepted output, rejected output, consumption and returns.
+    /// </summary>
+    public DbSet<MaterialMovement> MaterialMovements { get; set; } = null!;
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {

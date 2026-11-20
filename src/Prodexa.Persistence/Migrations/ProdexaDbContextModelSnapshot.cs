@@ -22,6 +22,113 @@ namespace Prodexa.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Prodexa.Core.Materials.MaterialDefinition", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("material_definitions", (string)null);
+                });
+
+            modelBuilder.Entity("Prodexa.Core.Materials.MaterialLot", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal?>("InitialQuantity")
+                        .HasPrecision(18, 6)
+                        .HasColumnType("numeric(18,6)");
+
+                    b.Property<string>("MaterialId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<string>("UnitId")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MaterialId");
+
+                    b.ToTable("material_lots", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_material_lots_initial_quantity", "\"InitialQuantity\" IS NULL OR \"InitialQuantity\" >= 0");
+                        });
+                });
+
+            modelBuilder.Entity("Prodexa.Core.Materials.MaterialMovement", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("ExecutionId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<string>("MaterialLotId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("OccurredAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("OutputQuality")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<decimal>("Quantity")
+                        .HasPrecision(18, 6)
+                        .HasColumnType("numeric(18,6)");
+
+                    b.Property<string>("ReversesMovementId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("UnitId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MaterialLotId");
+
+                    b.HasIndex("ReversesMovementId");
+
+                    b.HasIndex("ExecutionId", "OccurredAt");
+
+                    b.HasIndex("Kind", "OutputQuality", "OccurredAt");
+
+                    b.ToTable("material_movements", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_material_movements_quality", "(\"Kind\" = 'Output' AND \"OutputQuality\" IS NOT NULL) OR (\"Kind\" <> 'Output' AND \"OutputQuality\" IS NULL)");
+
+                            t.HasCheckConstraint("ck_material_movements_quantity", "\"Quantity\" > 0");
+                        });
+                });
+
             modelBuilder.Entity("Prodexa.Core.Production.Execution", b =>
                 {
                     b.Property<string>("Id")
@@ -187,6 +294,35 @@ namespace Prodexa.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("equipment", (string)null);
+                });
+
+            modelBuilder.Entity("Prodexa.Core.Materials.MaterialLot", b =>
+                {
+                    b.HasOne("Prodexa.Core.Materials.MaterialDefinition", null)
+                        .WithMany()
+                        .HasForeignKey("MaterialId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Prodexa.Core.Materials.MaterialMovement", b =>
+                {
+                    b.HasOne("Prodexa.Core.Production.Execution", null)
+                        .WithMany()
+                        .HasForeignKey("ExecutionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Prodexa.Core.Materials.MaterialLot", null)
+                        .WithMany()
+                        .HasForeignKey("MaterialLotId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Prodexa.Core.Materials.MaterialMovement", null)
+                        .WithMany()
+                        .HasForeignKey("ReversesMovementId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("Prodexa.Core.Production.Execution", b =>
