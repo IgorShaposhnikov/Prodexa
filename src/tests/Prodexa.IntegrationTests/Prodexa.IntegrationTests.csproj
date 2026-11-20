@@ -17,4 +17,8 @@
     <ProjectReference Include="../../Prodexa.Persistence/Prodexa.Persistence.csproj" />
     <ProjectReference Include="../../Prodexa.API/Prodexa.API.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../../../samples/demo-batch.json" Link="demo-batch.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>
