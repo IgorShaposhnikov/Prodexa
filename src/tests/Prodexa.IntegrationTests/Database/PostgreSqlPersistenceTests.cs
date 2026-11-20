@@ -9,22 +9,16 @@ namespace Prodexa.IntegrationTests.Database;
 /// <summary>
 /// Verifies production persistence against a real PostgreSQL database.
 /// </summary>
-public sealed class PostgreSqlPersistenceTests : IClassFixture<PostgreSqlFixture>
+[Collection("PostgreSQL")]
+public sealed class PostgreSqlPersistenceTests(PostgreSqlFixture database)
 {
-    private readonly PostgreSqlFixture _database;
-
-    public PostgreSqlPersistenceTests(PostgreSqlFixture database)
-    {
-        _database = database;
-    }
-
     /// <summary>
     /// Confirms that the initial migration is registered by PostgreSQL.
     /// </summary>
     [Fact]
     public async Task Migrations_ApplyInitialSchema()
     {
-        await using var context = _database.CreateContext();
+        await using var context = database.CreateContext();
 
         var migrations = await context.Database.GetAppliedMigrationsAsync();
 
@@ -45,10 +39,11 @@ public sealed class PostgreSqlPersistenceTests : IClassFixture<PostgreSqlFixture
         var dueAt = new DateTimeOffset(2026, 11, 1, 10, 0, 0, TimeSpan.FromHours(5));
         var executionStart = new DateTimeOffset(2026, 11, 1, 8, 0, 0, TimeSpan.FromHours(5));
 
-        await using (var context = _database.CreateContext())
+        await using (var context = database.CreateContext())
         {
-            context.PlanTasks.Add(new PlanTask { Id = taskId });
-            context.PlanTaskRevisions.Add(new PlanTaskRevision
+            var task = new PlanTask { Id = taskId };
+            context.PlanTasks.Add(task);
+            var revision = new PlanTaskRevision
             {
                 Id = revisionId,
                 TaskId = taskId,
@@ -60,20 +55,22 @@ public sealed class PostgreSqlPersistenceTests : IClassFixture<PostgreSqlFixture
                 DueAt = dueAt,
                 Status = PlanTaskStatus.Active,
                 EffectiveFrom = dueAt.AddDays(-1)
-            });
-            context.Executions.Add(new Execution
+            };
+            context.PlanTaskRevisions.Add(revision);
+            var execution = new Execution
             {
                 Id = executionId,
                 TaskId = taskId,
                 TaskRevisionId = revisionId,
                 StartAt = executionStart,
                 Status = ExecutionStatus.Started
-            });
+            };
+            context.Executions.Add(execution);
 
             await context.SaveChangesAsync();
         }
 
-        await using (var context = _database.CreateContext())
+        await using (var context = database.CreateContext())
         {
             var revision = await context.PlanTaskRevisions.AsNoTracking().SingleAsync(item => item.Id == revisionId);
             var execution = await context.Executions.AsNoTracking().SingleAsync(item => item.Id == executionId);
@@ -99,10 +96,12 @@ public sealed class PostgreSqlPersistenceTests : IClassFixture<PostgreSqlFixture
         var otherRevisionId = $"R-OTHER-{id}";
         var dueAt = new DateTimeOffset(2026, 11, 1, 10, 0, 0, TimeSpan.FromHours(5));
 
-        await using (var context = _database.CreateContext())
+        await using (var context = database.CreateContext())
         {
-            context.PlanTasks.AddRange(new PlanTask { Id = ownTaskId }, new PlanTask { Id = otherTaskId });
-            context.PlanTaskRevisions.Add(new PlanTaskRevision
+            var ownTask = new PlanTask { Id = ownTaskId };
+            var otherTask = new PlanTask { Id = otherTaskId };
+            context.PlanTasks.AddRange(ownTask, otherTask);
+            var revision = new PlanTaskRevision
             {
                 Id = otherRevisionId,
                 TaskId = otherTaskId,
@@ -114,20 +113,22 @@ public sealed class PostgreSqlPersistenceTests : IClassFixture<PostgreSqlFixture
                 DueAt = dueAt,
                 Status = PlanTaskStatus.Active,
                 EffectiveFrom = dueAt.AddDays(-1)
-            });
+            };
+            context.PlanTaskRevisions.Add(revision);
             await context.SaveChangesAsync();
         }
 
-        await using (var context = _database.CreateContext())
+        await using (var context = database.CreateContext())
         {
-            context.Executions.Add(new Execution
+            var execution = new Execution
             {
                 Id = $"EX-{id}",
                 TaskId = ownTaskId,
                 TaskRevisionId = otherRevisionId,
                 StartAt = dueAt.AddHours(-1),
                 Status = ExecutionStatus.Started
-            });
+            };
+            context.Executions.Add(execution);
 
             var exception = await Assert.ThrowsAsync<DbUpdateException>(async () => await context.SaveChangesAsync());
             var postgresException = Assert.IsType<PostgresException>(exception.InnerException);
@@ -147,10 +148,11 @@ public sealed class PostgreSqlPersistenceTests : IClassFixture<PostgreSqlFixture
         var downtimeId = $"D-{id}";
         var start = new DateTimeOffset(2026, 11, 1, 7, 50, 0, TimeSpan.FromHours(5));
 
-        await using (var context = _database.CreateContext())
+        await using (var context = database.CreateContext())
         {
-            context.Equipment.Add(new Equipment { Id = equipmentId });
-            context.Downtimes.Add(new Downtime
+            var equipment = new Equipment { Id = equipmentId };
+        context.Equipment.Add(equipment);
+            var downtime = new Downtime
             {
                 Id = downtimeId,
                 EquipmentId = equipmentId,
@@ -158,11 +160,12 @@ public sealed class PostgreSqlPersistenceTests : IClassFixture<PostgreSqlFixture
                 EndAt = start.AddMinutes(30),
                 ReasonCode = "MECHANICAL",
                 IsPlanned = false
-            });
+            };
+            context.Downtimes.Add(downtime);
             await context.SaveChangesAsync();
         }
 
-        await using (var context = _database.CreateContext())
+        await using (var context = database.CreateContext())
         {
             var stored = await context.Downtimes.AsNoTracking().SingleAsync(item => item.Id == downtimeId);
 
@@ -183,9 +186,10 @@ public sealed class PostgreSqlPersistenceTests : IClassFixture<PostgreSqlFixture
         var equipmentId = $"EQ-{id}";
         var start = new DateTimeOffset(2026, 11, 1, 9, 0, 0, TimeSpan.FromHours(5));
 
-        await using var context = _database.CreateContext();
-        context.Equipment.Add(new Equipment { Id = equipmentId });
-        context.Downtimes.Add(new Downtime
+        await using var context = database.CreateContext();
+        var equipment = new Equipment { Id = equipmentId };
+            context.Equipment.Add(equipment);
+        var downtime = new Downtime
         {
             Id = $"D-{id}",
             EquipmentId = equipmentId,
@@ -193,7 +197,8 @@ public sealed class PostgreSqlPersistenceTests : IClassFixture<PostgreSqlFixture
             EndAt = start.AddMinutes(-1),
             ReasonCode = "MECHANICAL",
             IsPlanned = false
-        });
+        };
+        context.Downtimes.Add(downtime);
 
         var exception = await Assert.ThrowsAsync<DbUpdateException>(async () => await context.SaveChangesAsync());
         var postgresException = Assert.IsType<PostgresException>(exception.InnerException);
