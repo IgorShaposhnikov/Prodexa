@@ -66,3 +66,52 @@ jobs:
 
       - name: Integration tests
         run: dotnet test src/tests/Prodexa.IntegrationTests/Prodexa.IntegrationTests.csproj --configuration Release --no-restore
+
+  aspire-demo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore src/Prodexa.slnx
+
+      - name: Build
+        run: dotnet build src/Prodexa.slnx --configuration Release --no-restore
+
+      - name: Launch Aspire and verify all three analytics scenarios
+        shell: bash
+        run: |
+          set -euo pipefail
+          dotnet run --project src/Prodexa.AppHost/Prodexa.AppHost.csproj > /tmp/prodexa-apphost.log 2>&1 &
+          apphost_pid=$!
+          trap 'kill "$apphost_pid" 2>/dev/null || true' EXIT
+
+          ready=false
+          for attempt in $(seq 1 90); do
+            if curl --silent --show-error --fail --max-time 2 'http://localhost:5080/api/production/tasks?limit=1' > /dev/null 2>&1; then
+              ready=true
+              break
+            fi
+
+            if ! kill -0 "$apphost_pid" 2>/dev/null; then
+              break
+            fi
+
+            sleep 2
+          done
+
+          if [ "$ready" != "true" ]; then
+            cat /tmp/prodexa-apphost.log
+            echo 'Aspire API did not become ready.'
+            exit 1
+          fi
+
+          python3 scripts/demo.py --url http://localhost:5080
