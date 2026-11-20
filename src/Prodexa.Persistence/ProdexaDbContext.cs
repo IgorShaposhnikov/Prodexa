@@ -58,6 +58,21 @@ public sealed class ProdexaDbContext : DbContext
     /// </summary>
     public DbSet<MaterialMovement> MaterialMovements { get; set; } = null!;
 
+    /// <summary>
+    /// Versioned product and input material descriptions used by consumption norms.
+    /// </summary>
+    public DbSet<MaterialDefinitionVersion> MaterialDefinitionVersions { get; set; } = null!;
+
+    /// <summary>
+    /// Versioned material consumption standards.
+    /// </summary>
+    public DbSet<ConsumptionNorm> ConsumptionNorms { get; set; } = null!;
+
+    /// <summary>
+    /// Norm versions explicitly assigned to production task revisions.
+    /// </summary>
+    public DbSet<PlanTaskNorm> PlanTaskNorms { get; set; } = null!;
+
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
         // PostgreSQL timestamptz stores instants, not the original source offsets.

@@ -22,6 +22,74 @@ namespace Prodexa.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Prodexa.Core.Materials.ConsumptionNorm", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("InputUnitId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("MaterialVersionId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("NormId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("OutputUnitId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("ProcessSegmentVersionId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("ProductVersionId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<decimal>("QuantityPerOutput")
+                        .HasPrecision(18, 6)
+                        .HasColumnType("numeric(18,6)");
+
+                    b.Property<DateTimeOffset>("ValidFrom")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("ValidTo")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("VersionNumber")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MaterialVersionId");
+
+                    b.HasIndex("ProductVersionId");
+
+                    b.HasIndex("NormId", "VersionNumber")
+                        .IsUnique();
+
+                    b.ToTable("consumption_norms", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_consumption_norms_period", "\"ValidTo\" IS NULL OR \"ValidTo\" > \"ValidFrom\"");
+
+                            t.HasCheckConstraint("ck_consumption_norms_quantity", "\"QuantityPerOutput\" > 0");
+
+                            t.HasCheckConstraint("ck_consumption_norms_revision", "\"VersionNumber\" > 0");
+                        });
+                });
+
             modelBuilder.Entity("Prodexa.Core.Materials.MaterialDefinition", b =>
                 {
                     b.Property<string>("Id")
@@ -31,6 +99,59 @@ namespace Prodexa.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("material_definitions", (string)null);
+                });
+
+            modelBuilder.Entity("Prodexa.Core.Materials.MaterialDefinitionVersion", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("BaseUnitId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("MaterialClassId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("MaterialId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("SourceRecordId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("ValidFrom")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("ValidTo")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("VersionNumber")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MaterialId", "VersionNumber")
+                        .IsUnique();
+
+                    b.ToTable("material_definition_versions", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_material_definition_versions_period", "\"ValidTo\" IS NULL OR \"ValidTo\" > \"ValidFrom\"");
+
+                            t.HasCheckConstraint("ck_material_definition_versions_revision", "\"VersionNumber\" > 0");
+                        });
                 });
 
             modelBuilder.Entity("Prodexa.Core.Materials.MaterialLot", b =>
@@ -179,6 +300,30 @@ namespace Prodexa.Persistence.Migrations
                     b.ToTable("plan_tasks", (string)null);
                 });
 
+            modelBuilder.Entity("Prodexa.Core.Production.PlanTaskNorm", b =>
+                {
+                    b.Property<string>("TaskRevisionId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("MaterialId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("NormVersionId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("TaskRevisionId", "MaterialId");
+
+                    b.HasIndex("MaterialId");
+
+                    b.HasIndex("NormVersionId");
+
+                    b.ToTable("plan_task_norms", (string)null);
+                });
+
             modelBuilder.Entity("Prodexa.Core.Production.PlanTaskRevision", b =>
                 {
                     b.Property<string>("Id")
@@ -296,6 +441,30 @@ namespace Prodexa.Persistence.Migrations
                     b.ToTable("equipment", (string)null);
                 });
 
+            modelBuilder.Entity("Prodexa.Core.Materials.ConsumptionNorm", b =>
+                {
+                    b.HasOne("Prodexa.Core.Materials.MaterialDefinitionVersion", null)
+                        .WithMany()
+                        .HasForeignKey("MaterialVersionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Prodexa.Core.Materials.MaterialDefinitionVersion", null)
+                        .WithMany()
+                        .HasForeignKey("ProductVersionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Prodexa.Core.Materials.MaterialDefinitionVersion", b =>
+                {
+                    b.HasOne("Prodexa.Core.Materials.MaterialDefinition", null)
+                        .WithMany()
+                        .HasForeignKey("MaterialId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Prodexa.Core.Materials.MaterialLot", b =>
                 {
                     b.HasOne("Prodexa.Core.Materials.MaterialDefinition", null)
@@ -331,6 +500,27 @@ namespace Prodexa.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("TaskId", "TaskRevisionId")
                         .HasPrincipalKey("TaskId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Prodexa.Core.Production.PlanTaskNorm", b =>
+                {
+                    b.HasOne("Prodexa.Core.Materials.MaterialDefinition", null)
+                        .WithMany()
+                        .HasForeignKey("MaterialId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Prodexa.Core.Materials.ConsumptionNorm", null)
+                        .WithMany()
+                        .HasForeignKey("NormVersionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Prodexa.Core.Production.PlanTaskRevision", null)
+                        .WithMany()
+                        .HasForeignKey("TaskRevisionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
