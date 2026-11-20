@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="Prodexa.Core/Prodexa.Core.csproj" />
+    <Project Path="Prodexa.Persistence/Prodexa.Persistence.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Prodexa.Tests/Prodexa.Tests.csproj" />
