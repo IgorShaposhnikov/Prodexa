@@ -1,0 +1,275 @@
+{
+  "sourceSystem": "prodexa-demo",
+  "records": [
+    {
+      "recordType": "PlanTask",
+      "sourceRecordId": "J-01",
+      "sourceRevision": "1",
+      "data": {
+        "id": "J-01"
+      }
+    },
+    {
+      "recordType": "PlanTask",
+      "sourceRecordId": "J-02",
+      "sourceRevision": "1",
+      "data": {
+        "id": "J-02"
+      }
+    },
+    {
+      "recordType": "MaterialDefinition",
+      "sourceRecordId": "PROD-A",
+      "sourceRevision": "1",
+      "data": {
+        "id": "PROD-A"
+      }
+    },
+    {
+      "recordType": "MaterialDefinition",
+      "sourceRecordId": "MAT-A",
+      "sourceRevision": "1",
+      "data": {
+        "id": "MAT-A"
+      }
+    },
+    {
+      "recordType": "Equipment",
+      "sourceRecordId": "EQ-01",
+      "sourceRevision": "1",
+      "data": {
+        "id": "EQ-01"
+      }
+    },
+    {
+      "recordType": "PlanTaskRevision",
+      "sourceRecordId": "J-01-v1",
+      "sourceRevision": "1",
+      "data": {
+        "id": "J-01-v1",
+        "taskId": "J-01",
+        "revisionNumber": 1,
+        "productId": "PROD-A",
+        "processSegmentVersionId": "SEG-A-v1",
+        "plannedQuantity": 100,
+        "unitId": "piece",
+        "dueAt": "2026-11-01T10:00:00+05:00",
+        "status": "Active",
+        "effectiveFrom": "2026-10-01T00:00:00+05:00"
+      }
+    },
+    {
+      "recordType": "PlanTaskRevision",
+      "sourceRecordId": "J-02-v1",
+      "sourceRevision": "1",
+      "data": {
+        "id": "J-02-v1",
+        "taskId": "J-02",
+        "revisionNumber": 1,
+        "productId": "PROD-A",
+        "processSegmentVersionId": "SEG-A-v1",
+        "plannedQuantity": 50,
+        "unitId": "piece",
+        "dueAt": "2026-11-01T10:00:00+05:00",
+        "status": "Completed",
+        "effectiveFrom": "2026-10-01T00:00:00+05:00"
+      }
+    },
+    {
+      "recordType": "Execution",
+      "sourceRecordId": "EX-01",
+      "sourceRevision": "1",
+      "data": {
+        "id": "EX-01",
+        "taskId": "J-01",
+        "taskRevisionId": "J-01-v1",
+        "startAt": "2026-11-01T08:00:00+05:00",
+        "status": "Completed"
+      }
+    },
+    {
+      "recordType": "Execution",
+      "sourceRecordId": "EX-02",
+      "sourceRevision": "1",
+      "data": {
+        "id": "EX-02",
+        "taskId": "J-02",
+        "taskRevisionId": "J-02-v1",
+        "startAt": "2026-11-01T08:00:00+05:00",
+        "status": "Completed"
+      }
+    },
+    {
+      "recordType": "MaterialDefinitionVersion",
+      "sourceRecordId": "PROD-A-v1",
+      "sourceRevision": "1",
+      "data": {
+        "id": "PROD-A-v1",
+        "materialId": "PROD-A",
+        "versionNumber": 1,
+        "name": "Product A",
+        "materialClassId": "Product",
+        "baseUnitId": "piece",
+        "validFrom": "2026-10-01T00:00:00+05:00",
+        "sourceRecordId": "ERP-PROD-A-v1"
+      }
+    },
+    {
+      "recordType": "MaterialDefinitionVersion",
+      "sourceRecordId": "MAT-A-v1",
+      "sourceRevision": "1",
+      "data": {
+        "id": "MAT-A-v1",
+        "materialId": "MAT-A",
+        "versionNumber": 1,
+        "name": "Material A",
+        "materialClassId": "RawMaterial",
+        "baseUnitId": "kg",
+        "validFrom": "2026-10-01T00:00:00+05:00",
+        "sourceRecordId": "ERP-MAT-A-v1"
+      }
+    },
+    {
+      "recordType": "MaterialLot",
+      "sourceRecordId": "LOT-PROD-A",
+      "sourceRevision": "1",
+      "data": {
+        "id": "LOT-PROD-A",
+        "materialId": "PROD-A",
+        "createdAt": "2026-11-01T07:00:00+05:00",
+        "unitId": "piece",
+        "status": "Active"
+      }
+    },
+    {
+      "recordType": "MaterialLot",
+      "sourceRecordId": "LOT-MAT-A",
+      "sourceRevision": "1",
+      "data": {
+        "id": "LOT-MAT-A",
+        "materialId": "MAT-A",
+        "createdAt": "2026-11-01T07:00:00+05:00",
+        "unitId": "kg",
+        "status": "Active"
+      }
+    },
+    {
+      "recordType": "ConsumptionNorm",
+      "sourceRecordId": "N-01-v1",
+      "sourceRevision": "1",
+      "data": {
+        "id": "N-01-v1",
+        "normId": "N-01",
+        "versionNumber": 1,
+        "productVersionId": "PROD-A-v1",
+        "materialVersionId": "MAT-A-v1",
+        "processSegmentVersionId": "SEG-A-v1",
+        "quantityPerOutput": 2,
+        "inputUnitId": "kg",
+        "outputUnitId": "piece",
+        "validFrom": "2026-10-01T00:00:00+05:00"
+      }
+    },
+    {
+      "recordType": "PlanTaskNorm",
+      "sourceRecordId": "J-02-v1/MAT-A",
+      "sourceRevision": "1",
+      "data": {
+        "taskRevisionId": "J-02-v1",
+        "materialId": "MAT-A",
+        "normVersionId": "N-01-v1"
+      }
+    },
+    {
+      "recordType": "Downtime",
+      "sourceRecordId": "D-01",
+      "sourceRevision": "1",
+      "data": {
+        "id": "D-01",
+        "equipmentId": "EQ-01",
+        "startAt": "2026-11-01T07:50:00+05:00",
+        "endAt": "2026-11-01T08:20:00+05:00",
+        "reasonCode": "MECHANICAL",
+        "isPlanned": false
+      },
+      "sourceEventAt": "2026-11-01T07:50:00+05:00"
+    },
+    {
+      "recordType": "Downtime",
+      "sourceRecordId": "D-02",
+      "sourceRevision": "1",
+      "data": {
+        "id": "D-02",
+        "equipmentId": "EQ-01",
+        "startAt": "2026-11-01T08:10:00+05:00",
+        "endAt": "2026-11-01T09:00:00+05:00",
+        "reasonCode": "MECHANICAL",
+        "isPlanned": false
+      },
+      "sourceEventAt": "2026-11-01T08:10:00+05:00"
+    },
+    {
+      "recordType": "MaterialMovement",
+      "sourceRecordId": "MOV-OUT-01",
+      "sourceRevision": "1",
+      "data": {
+        "id": "MOV-OUT-01",
+        "executionId": "EX-01",
+        "materialLotId": "LOT-PROD-A",
+        "kind": "Output",
+        "quantity": 60,
+        "unitId": "piece",
+        "occurredAt": "2026-11-01T09:00:00+05:00",
+        "outputQuality": "Good"
+      },
+      "sourceEventAt": "2026-11-01T09:00:00+05:00"
+    },
+    {
+      "recordType": "MaterialMovement",
+      "sourceRecordId": "MOV-OUT-02",
+      "sourceRevision": "1",
+      "data": {
+        "id": "MOV-OUT-02",
+        "executionId": "EX-02",
+        "materialLotId": "LOT-PROD-A",
+        "kind": "Output",
+        "quantity": 50,
+        "unitId": "piece",
+        "occurredAt": "2026-11-01T09:00:00+05:00",
+        "outputQuality": "Good"
+      },
+      "sourceEventAt": "2026-11-01T09:00:00+05:00"
+    },
+    {
+      "recordType": "MaterialMovement",
+      "sourceRecordId": "MOV-CONSUME-01",
+      "sourceRevision": "1",
+      "data": {
+        "id": "MOV-CONSUME-01",
+        "executionId": "EX-02",
+        "materialLotId": "LOT-MAT-A",
+        "kind": "Consume",
+        "quantity": 115,
+        "unitId": "kg",
+        "occurredAt": "2026-11-01T09:10:00+05:00"
+      },
+      "sourceEventAt": "2026-11-01T09:10:00+05:00"
+    },
+    {
+      "recordType": "MaterialMovement",
+      "sourceRecordId": "MOV-RETURN-01",
+      "sourceRevision": "1",
+      "data": {
+        "id": "MOV-RETURN-01",
+        "executionId": "EX-02",
+        "materialLotId": "LOT-MAT-A",
+        "kind": "Return",
+        "quantity": 5,
+        "unitId": "kg",
+        "occurredAt": "2026-11-01T09:20:00+05:00",
+        "reversesMovementId": "MOV-CONSUME-01"
+      },
+      "sourceEventAt": "2026-11-01T09:20:00+05:00"
+    }
+  ]
+}
