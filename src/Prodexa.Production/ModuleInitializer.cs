@@ -16,5 +16,6 @@ public sealed class ModuleInitializer
         ArgumentNullException.ThrowIfNull(services);
 
         services.AddScoped<ProductionTaskService>();
+        services.AddScoped<ProductionOverdueService>();
     }
 }
