@@ -29,5 +29,40 @@ jobs:
           dotnet tool restore
           dotnet tool run dotnet-ef migrations has-pending-model-changes --project src/Prodexa.Persistence --startup-project src/Prodexa.Persistence --configuration Release --no-build
 
-      - name: Test
-        run: dotnet test src/Prodexa.slnx --configuration Release --no-build
+      - name: Unit tests
+        run: dotnet test src/tests/Prodexa.Tests/Prodexa.Tests.csproj --configuration Release --no-build
+
+  integration:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: prodexa
+          POSTGRES_PASSWORD: prodexa
+          POSTGRES_DB: prodexa_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U prodexa -d prodexa_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      PRODEXA_TEST_CONNECTION_STRING: Host=localhost;Port=5432;Database=prodexa_test;Username=prodexa;Password=prodexa
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore src/Prodexa.slnx
+
+      - name: Integration tests
+        run: dotnet test src/tests/Prodexa.IntegrationTests/Prodexa.IntegrationTests.csproj --configuration Release --no-restore
