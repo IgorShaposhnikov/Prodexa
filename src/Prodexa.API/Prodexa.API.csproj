@@ -2,6 +2,7 @@
   <ItemGroup>
     <ProjectReference Include="../Prodexa.Equipment/Prodexa.Equipment.csproj" />
     <ProjectReference Include="../Prodexa.Materials/Prodexa.Materials.csproj" />
+    <ProjectReference Include="../Prodexa.Importing/Prodexa.Importing.csproj" />
     <ProjectReference Include="../Prodexa.Persistence/Prodexa.Persistence.csproj" />
     <ProjectReference Include="../Prodexa.Production/Prodexa.Production.csproj" />
   </ItemGroup>

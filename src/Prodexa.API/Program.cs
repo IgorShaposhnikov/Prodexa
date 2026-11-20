@@ -25,10 +25,14 @@ equipmentModule.AddServices(builder.Services);
 var materialsModule = new Prodexa.Materials.ModuleInitializer();
 materialsModule.AddServices(builder.Services);
 
+var importingModule = new Prodexa.Importing.ModuleInitializer();
+importingModule.AddServices(builder.Services);
+
 builder.Services.AddControllers()
     .AddApplicationPart(typeof(Prodexa.Production.ModuleInitializer).Assembly)
     .AddApplicationPart(typeof(Prodexa.Equipment.ModuleInitializer).Assembly)
-    .AddApplicationPart(typeof(Prodexa.Materials.ModuleInitializer).Assembly);
+    .AddApplicationPart(typeof(Prodexa.Materials.ModuleInitializer).Assembly)
+    .AddApplicationPart(typeof(Prodexa.Importing.ModuleInitializer).Assembly);
 
 var app = builder.Build();
 
