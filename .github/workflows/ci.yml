@@ -24,5 +24,10 @@ jobs:
       - name: Build
         run: dotnet build src/Prodexa.slnx --configuration Release --no-restore
 
+      - name: Verify EF Core migrations
+        run: |
+          dotnet tool restore
+          dotnet tool run dotnet-ef migrations has-pending-model-changes --project src/Prodexa.Persistence --startup-project src/Prodexa.Persistence --configuration Release --no-build
+
       - name: Test
         run: dotnet test src/Prodexa.slnx --configuration Release --no-build
