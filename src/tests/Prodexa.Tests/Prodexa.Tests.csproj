@@ -14,5 +14,6 @@
 
   <ItemGroup>
     <ProjectReference Include="../../Prodexa.Core/Prodexa.Core.csproj" />
+    <ProjectReference Include="../../Prodexa.Persistence/Prodexa.Persistence.csproj" />
   </ItemGroup>
 </Project>
