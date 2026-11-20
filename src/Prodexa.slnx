@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="Prodexa.API/Prodexa.API.csproj" />
+    <Project Path="Prodexa.AppHost/Prodexa.AppHost.csproj" />
     <Project Path="Prodexa.Core/Prodexa.Core.csproj" />
     <Project Path="Prodexa.Equipment/Prodexa.Equipment.csproj" />
     <Project Path="Prodexa.Materials/Prodexa.Materials.csproj" />

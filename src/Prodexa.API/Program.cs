@@ -36,6 +36,14 @@ builder.Services.AddControllers()
 
 var app = builder.Build();
 
+// Aspire enables schema initialization only for the local demo environment.
+if (app.Configuration.GetValue<bool>("Prodexa:MigrateOnStartup"))
+{
+    await using var scope = app.Services.CreateAsyncScope();
+    var context = scope.ServiceProvider.GetRequiredService<ProdexaDbContext>();
+    await context.Database.MigrateAsync();
+}
+
 app.MapControllers();
 
 app.Run();
