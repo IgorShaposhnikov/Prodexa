@@ -19,7 +19,12 @@ builder.Services.AddDbContext<ProdexaDbContext>((serviceProvider, options) =>
 var productionModule = new Prodexa.Production.ModuleInitializer();
 productionModule.AddServices(builder.Services);
 
-builder.Services.AddControllers().AddApplicationPart(typeof(Prodexa.Production.ModuleInitializer).Assembly);
+var equipmentModule = new Prodexa.Equipment.ModuleInitializer();
+equipmentModule.AddServices(builder.Services);
+
+builder.Services.AddControllers()
+    .AddApplicationPart(typeof(Prodexa.Production.ModuleInitializer).Assembly)
+    .AddApplicationPart(typeof(Prodexa.Equipment.ModuleInitializer).Assembly);
 
 var app = builder.Build();
 

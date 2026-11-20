@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using Prodexa.Core.Production;
 using Prodexa.Core.Resources;
+using EquipmentResource = Prodexa.Core.Resources.Equipment;
 using Xunit;
 
 namespace Prodexa.IntegrationTests.Database;
@@ -150,7 +151,7 @@ public sealed class PostgreSqlPersistenceTests(PostgreSqlFixture database)
 
         await using (var context = database.CreateContext())
         {
-            var equipment = new Equipment { Id = equipmentId };
+            var equipment = new EquipmentResource { Id = equipmentId };
         context.Equipment.Add(equipment);
             var downtime = new Downtime
             {
@@ -187,7 +188,7 @@ public sealed class PostgreSqlPersistenceTests(PostgreSqlFixture database)
         var start = new DateTimeOffset(2026, 11, 1, 9, 0, 0, TimeSpan.FromHours(5));
 
         await using var context = database.CreateContext();
-        var equipment = new Equipment { Id = equipmentId };
+        var equipment = new EquipmentResource { Id = equipmentId };
             context.Equipment.Add(equipment);
         var downtime = new Downtime
         {

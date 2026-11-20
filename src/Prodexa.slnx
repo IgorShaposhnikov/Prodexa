@@ -2,6 +2,7 @@
   <Folder Name="/src/">
     <Project Path="Prodexa.API/Prodexa.API.csproj" />
     <Project Path="Prodexa.Core/Prodexa.Core.csproj" />
+    <Project Path="Prodexa.Equipment/Prodexa.Equipment.csproj" />
     <Project Path="Prodexa.Persistence/Prodexa.Persistence.csproj" />
     <Project Path="Prodexa.Production/Prodexa.Production.csproj" />
   </Folder>
