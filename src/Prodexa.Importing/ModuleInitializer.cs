@@ -17,5 +17,8 @@ public sealed class ModuleInitializer
 
         services.AddScoped<ManufacturingImportService>();
         services.AddSingleton<CsvImportParser>();
+        services.AddSingleton<CsvTargetCatalog>();
+        services.AddSingleton<CsvMappingEngine>();
+        services.AddScoped<CsvMappingService>();
     }
 }

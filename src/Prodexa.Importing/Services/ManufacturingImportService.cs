@@ -99,6 +99,9 @@ public sealed class ManufacturingImportService(ProdexaDbContext context)
         {
             await context.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
+
+            // A single upload can contain thousands of batches; do not retain all imported entities.
+            context.ChangeTracker.Clear();
         }
         catch (DbUpdateException exception) when (exception.InnerException is PostgresException postgres
             && postgres.SqlState == PostgresErrorCodes.UniqueViolation)
