@@ -193,6 +193,75 @@ public sealed class CsvMappingApiTests(PostgreSqlFixture database)
     }
 
     /// <summary>
+    /// Imports more than 500 CSV rows while deduplicating repeated source keys across batch boundaries.
+    /// </summary>
+    [Fact]
+    public async Task CsvMapping_ImportsMultipleBatchesWithoutDuplicateEquipment()
+    {
+        var suffix = Guid.NewGuid().ToString("N");
+        var equipmentId = $"EQ-BATCH-{suffix}";
+        var profileId = $"PROFILE-BATCH-{suffix}";
+        var source = $"SOURCE-BATCH-{suffix}";
+
+        var mapping = new CsvMappingDefinition
+        {
+            Id = profileId,
+            Name = "Equipment from repeated source rows",
+            SourceSystem = source,
+            SourceRecordIdColumn = "machine_id",
+            Target = "Equipment",
+            Fields = new Dictionary<string, CsvFieldMapping>
+            {
+                ["id"] = new() { Column = "machine_id" }
+            }
+        };
+
+        var csv = new StringBuilder("machine_id\n");
+
+        for (var index = 0; index < 501; index++)
+        {
+            csv.AppendLine(equipmentId);
+        }
+
+        using var factory = CreateFactory();
+        using var client = factory.CreateClient();
+
+        var profileResponse = await client.PostAsJsonAsync("/api/import/mappings", mapping);
+        Assert.Equal(HttpStatusCode.Created, profileResponse.StatusCode);
+
+        using (var content = CsvFile(csv.ToString()))
+        {
+            var response = await client.PostAsync(
+                $"/api/import/mappings/{profileId}/import?datasetId=equipment-batch", content);
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            var result = await response.Content.ReadFromJsonAsync<CsvMappingImportResult>();
+            Assert.NotNull(result);
+            Assert.Equal(501, result.RowsScanned);
+            Assert.Equal(1, result.ImportedCount);
+            Assert.Equal(500, result.SkippedCount);
+        }
+
+        using (var content = CsvFile(csv.ToString()))
+        {
+            var response = await client.PostAsync(
+                $"/api/import/mappings/{profileId}/import?datasetId=equipment-batch", content);
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            var replay = await response.Content.ReadFromJsonAsync<CsvMappingImportResult>();
+            Assert.NotNull(replay);
+            Assert.Equal(0, replay.ImportedCount);
+            Assert.Equal(501, replay.SkippedCount);
+        }
+
+        await using var context = database.CreateContext();
+        Assert.Equal(1, await context.Equipment.CountAsync(item => item.Id == equipmentId));
+        Assert.Equal(1, await context.SourceRecords.CountAsync(item => item.SourceSystem == source));
+    }
+
+    /// <summary>
     /// Validates client-parsed preview rows and rejects oversized samples.
     /// </summary>
     [Theory]
