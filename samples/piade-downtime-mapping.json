@@ -1,0 +1,39 @@
+{
+  "id": "piade-downtime-v1",
+  "name": "PIADE machine downtime",
+  "sourceSystem": "PIADE",
+  "target": "Downtime",
+  "sourceRevision": "1",
+  "filters": {
+    "type": [
+      "downtime",
+      "scheduled_downtime"
+    ]
+  },
+  "fields": {
+    "id": {
+      "generate": "stable_id"
+    },
+    "equipmentId": {
+      "column": "equipment_ID"
+    },
+    "startAt": {
+      "column": "interval_start",
+      "convertTo": "datetime_utc",
+      "sourceFormat": "utc_naive"
+    },
+    "endAt": {
+      "column": "end",
+      "convertTo": "datetime_utc",
+      "sourceFormat": "unix_seconds"
+    },
+    "reasonCode": {
+      "column": "alarm"
+    },
+    "isPlanned": {
+      "column": "type",
+      "equals": "scheduled_downtime",
+      "convertTo": "boolean"
+    }
+  }
+}

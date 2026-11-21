@@ -48,6 +48,6 @@ dotnet test src/tests/Prodexa.Tests/Prodexa.Tests.csproj
 
 Integration tests require `PRODEXA_TEST_CONNECTION_STRING` pointing to a dedicated PostgreSQL database. GitHub Actions supplies PostgreSQL automatically.
 
-See [import formats](docs/importing.md) for the supported JSON and CSV schemas.
+See [import formats](docs/importing.md) for the supported JSON and CSV schemas, and [configurable CSV mapping](docs/csv-mapping.md) to discover target fields, save source-specific mapping profiles, preview conversions and import arbitrary CSV columns using Swagger UI.
 
 Apache AGE remains a proposed extension; the current implementation uses relational PostgreSQL storage.

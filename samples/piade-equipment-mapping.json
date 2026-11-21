@@ -1,0 +1,13 @@
+{
+  "id": "piade-equipment-v1",
+  "name": "PIADE equipment",
+  "sourceSystem": "PIADE",
+  "target": "Equipment",
+  "sourceRecordIdColumn": "equipment_ID",
+  "sourceRevision": "1",
+  "fields": {
+    "id": {
+      "column": "equipment_ID"
+    }
+  }
+}
