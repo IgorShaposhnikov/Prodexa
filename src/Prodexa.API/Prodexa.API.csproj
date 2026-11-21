@@ -1,5 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="../Prodexa.Equipment/Prodexa.Equipment.csproj" />
     <ProjectReference Include="../Prodexa.Materials/Prodexa.Materials.csproj" />
     <ProjectReference Include="../Prodexa.Importing/Prodexa.Importing.csproj" />

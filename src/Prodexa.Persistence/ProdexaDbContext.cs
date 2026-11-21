@@ -79,6 +79,11 @@ public sealed class ProdexaDbContext : DbContext
     /// </summary>
     public DbSet<SourceRecord> SourceRecords { get; set; } = null!;
 
+    /// <summary>
+    /// Reusable CSV mapping profiles saved by clients.
+    /// </summary>
+    public DbSet<CsvMappingProfile> CsvMappingProfiles { get; set; } = null!;
+
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
         // PostgreSQL timestamptz stores instants, not the original source offsets.

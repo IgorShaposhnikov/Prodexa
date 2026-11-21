@@ -16,6 +16,8 @@ builder.Services.AddDbContext<ProdexaDbContext>((serviceProvider, options) =>
     options.UseNpgsql(connectionString);
 });
 
+builder.Services.AddOpenApi();
+
 var productionModule = new Prodexa.Production.ModuleInitializer();
 productionModule.AddServices(builder.Services);
 
@@ -45,6 +47,15 @@ if (app.Configuration.GetValue<bool>("Prodexa:MigrateOnStartup"))
 }
 
 app.MapControllers();
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/openapi/v1.json", "Prodexa API v1");
+    });
+}
 
 app.Run();
 
