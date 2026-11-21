@@ -42,6 +42,22 @@ public sealed class ManufacturingImportService(ProdexaDbContext context)
 
         await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
 
+        // Look up previously imported revisions once per batch rather than issuing
+        // a separate PostgreSQL query for every row in large CSV uploads.
+        var sourceIds = batch.Records
+            .Where(record => record is not null)
+            .Select(record => record.SourceRecordId)
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+
+        var existingRecords = await context.SourceRecords.AsNoTracking()
+            .Where(record => record.SourceSystem == batch.SourceSystem
+                && sourceIds.Contains(record.SourceRecordId))
+            .ToListAsync(cancellationToken);
+
+        var revisions = existingRecords.ToDictionary(
+            record => (record.RecordType, record.SourceRecordId, record.SourceRevision));
+
         foreach (var record in batch.Records)
         {
             if (record is null)
@@ -61,11 +77,9 @@ public sealed class ManufacturingImportService(ProdexaDbContext context)
             var canonicalJson = JsonSerializer.Serialize(record.Data);
             var payloadHash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(canonicalJson)));
 
-            // FindAsync also checks records already tracked in the current batch.
-            var key = new object[] { batch.SourceSystem, record.RecordType, record.SourceRecordId, record.SourceRevision };
-            var previous = await context.SourceRecords.FindAsync(key, cancellationToken);
+            var key = (record.RecordType, record.SourceRecordId, record.SourceRevision);
 
-            if (previous is not null)
+            if (revisions.TryGetValue(key, out var previous))
             {
                 if (!string.Equals(previous.PayloadHash, payloadHash, StringComparison.Ordinal))
                 {
@@ -92,6 +106,7 @@ public sealed class ManufacturingImportService(ProdexaDbContext context)
             };
 
             context.SourceRecords.Add(source);
+            revisions.Add(key, source);
             imported++;
         }
 
