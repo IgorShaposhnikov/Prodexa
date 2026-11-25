@@ -6,7 +6,7 @@ Prodexa imports interconnected production records with source provenance and ana
 
 ## Run the demo
 
-Requires the .NET 10 SDK, Docker (running), and Python 3 for the demo verification script.
+Requires a .NET 10 or newer SDK, the .NET 10 runtime, Docker (running), and Python 3 for the demo verification script. The application targets `net10.0`; `global.json` prefers a 10.x SDK if present but allows a newer installed SDK (for example, 11.0.100) to build it.
 
 Start the Aspire AppHost from the repository root:
 

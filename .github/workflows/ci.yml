@@ -115,3 +115,32 @@ jobs:
           fi
 
           python3 scripts/demo.py --url http://localhost:5080
+
+  sdk-11-compatibility:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install isolated .NET 11 SDK
+        shell: bash
+        run: |
+          curl --fail --silent --show-error --location https://dot.net/v1/dotnet-install.sh --output "$RUNNER_TEMP/dotnet-install.sh"
+          bash "$RUNNER_TEMP/dotnet-install.sh" --channel 11.0 --install-dir "$RUNNER_TEMP/dotnet11" --no-path
+          echo "$RUNNER_TEMP/dotnet11" >> "$GITHUB_PATH"
+          echo "DOTNET_ROOT=$RUNNER_TEMP/dotnet11" >> "$GITHUB_ENV"
+
+      - name: Verify SDK selection
+        shell: bash
+        run: |
+          dotnet --list-sdks
+          selected="$(dotnet --version)"
+          echo "Selected SDK: $selected"
+          [[ "$selected" == 11.* ]]
+
+      - name: Restore
+        run: dotnet restore src/Prodexa.slnx
+
+      - name: Build .NET 10 projects using .NET 11 SDK
+        run: dotnet build src/Prodexa.slnx --configuration Release --no-restore
