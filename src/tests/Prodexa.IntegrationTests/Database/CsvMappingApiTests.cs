@@ -171,6 +171,80 @@ public sealed class CsvMappingApiTests(PostgreSqlFixture database)
     }
 
     /// <summary>
+    /// The browser workspace and its ES modules are served by the API.
+    /// </summary>
+    [Fact]
+    public async Task CsvWorkspace_ServesTheImportPageAndScripts()
+    {
+        using var factory = CreateFactory();
+        using var client = factory.CreateClient();
+
+        var page = await client.GetAsync("/");
+        Assert.Equal(HttpStatusCode.OK, page.StatusCode);
+        Assert.Contains("CSV import", await page.Content.ReadAsStringAsync());
+
+        foreach (var path in new[] { "/import.js", "/csv-sample.mjs", "/styles.css" })
+        {
+            var asset = await client.GetAsync(path);
+            Assert.Equal(HttpStatusCode.OK, asset.StatusCode);
+            Assert.NotEmpty(await asset.Content.ReadAsStringAsync());
+
+            if (path.EndsWith(".js") || path.EndsWith(".mjs"))
+            {
+                Assert.Contains("javascript", asset.Content.Headers.ContentType!.MediaType!);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Fractional Unix timestamps retain the precision used by manufacturing datasets.
+    /// </summary>
+    [Theory]
+    [InlineData("unix_seconds", "1577877751.957", "2020-01-01T11:22:31.957+00:00")]
+    [InlineData("unix_milliseconds", "1577877751957", "2020-01-01T11:22:31.957+00:00")]
+    [InlineData("unix_seconds", "-0.125", "1969-12-31T23:59:59.875+00:00")]
+    [InlineData("unix_milliseconds", "0.125", "1970-01-01T00:00:00.000125+00:00")]
+    public async Task CsvMappingPreview_PreservesFractionalUnixTimestamps(string format, string value, string expected)
+    {
+        var suffix = Guid.NewGuid().ToString("N");
+        var mapping = CreateDowntimeMapping($"PROFILE-{suffix}", $"SOURCE-{suffix}");
+        mapping.Fields["endAt"] = new CsvFieldMapping
+        {
+            Column = "end",
+            ConvertTo = "datetime_utc",
+            SourceFormat = format
+        };
+
+        var request = new CsvMappingPreviewRequest
+        {
+            Mapping = mapping,
+            DatasetId = "fractional-epoch",
+            Rows = new List<Dictionary<string, string>>
+            {
+                new()
+                {
+                    ["equipment_ID"] = "EQ-01",
+                    ["interval_start"] = "1969-12-31 00:00:00",
+                    ["end"] = value,
+                    ["alarm"] = "A_000",
+                    ["type"] = "downtime"
+                }
+            }
+        };
+
+        using var factory = CreateFactory();
+        using var client = factory.CreateClient();
+
+        var response = await client.PostAsJsonAsync("/api/import/mappings/preview", request);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var result = await response.Content.ReadFromJsonAsync<CsvMappingPreviewResult>();
+        Assert.NotNull(result);
+        var record = Assert.Single(result.Records);
+        Assert.Equal(DateTimeOffset.Parse(expected), record.Data.GetProperty("endAt").GetDateTimeOffset());
+    }
+
+    /// <summary>
     /// OpenAPI exposes the mapping contract and Swagger UI is available during development.
     /// </summary>
     [Fact]

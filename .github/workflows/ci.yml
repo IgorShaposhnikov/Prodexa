@@ -144,3 +144,16 @@ jobs:
 
       - name: Build .NET 10 projects using .NET 11 SDK
         run: dotnet build src/Prodexa.slnx --configuration Release --no-restore
+
+  browser-csv:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Check browser module syntax and CSV sampling
+        run: |
+          node --input-type=module --check < src/Prodexa.API/wwwroot/import.js
+          node --test scripts/csv-sample.test.mjs
