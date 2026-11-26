@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Prodexa | CSV import</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <header class="topbar">
+        <div class="brand"><span class="mark">P</span><strong>Prodexa</strong><span class="brand-detail">Manufacturing data platform</span></div>
+        <nav><a class="active" href="/">Data import</a><a href="/swagger">API</a></nav>
+    </header>
+    <main>
+        <div class="page-heading"><div><p class="eyebrow">DATA INTEGRATION</p><h1>CSV import</h1><p>Connect a source file to your manufacturing data model.</p></div><span id="connection" class="status" role="status">Connecting…</span></div>
+        <section class="panel">
+            <div class="section-heading"><span class="step">01</span><div><h2>Source file</h2><p>Read columns and sample rows in your browser. The file stays local until import.</p></div></div>
+            <label class="dropzone" for="file"><strong id="file-label">Choose a CSV file</strong><span id="file-info">UTF-8, comma separated · up to 75 MB</span><input type="file" id="file" accept=".csv,text/csv"></label>
+            <div id="source-summary" class="muted"></div>
+            <div id="source-table" class="table-scroll" hidden></div>
+        </section>
+        <section class="panel">
+            <div class="section-heading"><span class="step">02</span><div><h2>Mapping profile</h2><p>Choose a saved profile or configure a new one. Each profile maps one target model.</p></div></div>
+            <div class="profile-toolbar">
+                <label>Saved profiles<select id="profiles"><option value="">New profile</option></select></label>
+                <button class="secondary" id="new-profile" type="button">New profile</button>
+            </div>
+            <div class="fields-grid">
+                <label>Profile ID<input id="profile-id" maxlength="100" placeholder="piade-downtime-v1"></label>
+                <label>Profile name<input id="profile-name" maxlength="200" placeholder="PIADE Downtime"></label>
+                <label>Source system<input id="source-system" maxlength="100" placeholder="PIADE"></label>
+                <label>Target model<select id="target"><option value="">Choose a model</option></select></label>
+                <label>Source revision<input id="revision" maxlength="100" value="1"></label>
+                <label>Source record ID column<select id="source-id"><option value="">Generated from dataset and row</option></select></label>
+            </div>
+            <div class="notice" id="target-hint" hidden></div>
+            <div id="bindings" class="bindings"><p class="muted">Choose a target model to configure its fields.</p></div>
+            <div class="subheading"><div><h3>Row filters</h3><p>All configured filters must match. Enter allowed values on separate lines.</p></div><button id="add-filter" class="secondary" type="button">Add filter</button></div>
+            <div id="filters"></div>
+            <details><summary>Mapping JSON</summary><pre id="definition"></pre></details>
+        </section>
+        <section class="panel">
+            <div class="section-heading"><span class="step">03</span><div><h2>Validate and import</h2><p>Preview uses up to 20 client-parsed rows. Import sends the full CSV to the API.</p></div></div>
+            <label class="dataset">Dataset ID<input id="dataset" maxlength="100" placeholder="piade-2020-2021"><small>Keep the same ID and row order when replaying the same dataset.</small></label>
+            <div class="actions"><button id="preview" class="secondary" type="button">Preview mapping</button><button id="save" class="secondary" type="button">Save profile</button><button id="import" class="primary" type="button">Import CSV</button></div>
+            <p id="message" role="status" aria-live="polite"></p>
+            <div id="preview-result" hidden></div>
+            <div id="import-result" hidden></div>
+            <p class="footnote">Each import batch commits independently. Correct errors and replay the same dataset to skip unchanged records.</p>
+        </section>
+    </main>
+    <footer>Prodexa · Local development workspace</footer>
+    <script type="module" src="/import.js"></script>
+</body>
+</html>

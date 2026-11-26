@@ -46,6 +46,8 @@ if (app.Configuration.GetValue<bool>("Prodexa:MigrateOnStartup"))
     await context.Database.MigrateAsync();
 }
 
+app.UseDefaultFiles();
+app.UseStaticFiles();
 app.MapControllers();
 
 if (app.Environment.IsDevelopment())
