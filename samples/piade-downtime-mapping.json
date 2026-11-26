@@ -20,7 +20,7 @@
     "startAt": {
       "column": "interval_start",
       "convertTo": "datetime_utc",
-      "sourceFormat": "utc_naive"
+      "sourceFormat": "iso8601"
     },
     "endAt": {
       "column": "end",

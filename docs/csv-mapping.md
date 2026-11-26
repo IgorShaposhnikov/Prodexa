@@ -2,6 +2,10 @@
 
 Prodexa can map columns from an arbitrary CSV into a supported manufacturing model without writing a new C# parser for each source. Mapping profiles are JSON documents saved in PostgreSQL.
 
+## CSV mapping workspace
+
+After starting the AppHost, open `http://localhost:5080/`. The built-in workspace uses the same API documented below. It reads a bounded CSV prefix in the browser, loads available target fields and saved profiles, builds a mapping interactively, previews conversions on the server and imports only after the user selects Import CSV. Existing saved profiles are immutable: use a new profile ID for changes. No Node.js installation is needed to run the workspace. The sample reader supports comma-separated files with quoted fields; preview is limited to the first 20 complete records from the first MiB. Full imports retain the existing 75 MB limit and batch semantics.
+
 ## Browser and API workflow
 
 Start the development AppHost with `dotnet run --project src/Prodexa.AppHost`, then open **http://localhost:5080/swagger** to test the HTTP endpoints.
@@ -130,9 +134,9 @@ Large imports are processed in batches of 500 mapped rows. **Each batch commits 
 
 The importer does not infer missing production orders, downtime classifications or material norms. It only converts values explicitly supplied by the CSV and mapping definition.
 
-## UI design
+## UI architecture
 
-A future web client can implement the editor without transmitting the source CSV until the final import:
+The built-in web client implements the editor without transmitting the source CSV until the final import:
 
 - Read and display the CSV header and sample using a client-side CSV parser (including quoted fields and encoding considerations).
 - Ask `GET /api/import/targets` for available destination properties.
@@ -141,4 +145,4 @@ A future web client can implement the editor without transmitting the source CSV
 - Save the mapping with `POST /api/import/mappings`; only upload the complete file to `POST /api/import/mappings/{id}/import` when the user explicitly starts importing.
 - For large CSV files, parse or sample in a Web Worker to keep the browser responsive.
 
-Swagger provides this functionality as manual HTTP forms until a dedicated frontend is implemented. Swagger UI is enabled only in the development environment. The import API currently has no authentication, so it should not be exposed to untrusted networks.
+Swagger provides manual HTTP forms for development and testing alongside the browser workspace. Swagger UI is enabled only in the development environment. The import API currently has no authentication, so it should not be exposed to untrusted networks.

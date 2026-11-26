@@ -16,6 +16,8 @@ dotnet run --project src/Prodexa.AppHost/Prodexa.AppHost.csproj
 
 Aspire starts PostgreSQL 17 and the modular Prodexa API at `http://localhost:5080`. The development AppHost enables EF Core migrations on startup; running the API independently does not automatically migrate the database. A persistent Docker volume keeps local data between runs.
 
+Open [http://localhost:5080/](http://localhost:5080/) for the CSV mapping workspace. Select a local CSV, choose a target model, configure or load a profile, preview the sample, save the profile and import the file. The browser reads the first 20 rows locally; the full file is sent only when Import CSV is selected. Swagger remains available at [http://localhost:5080/swagger](http://localhost:5080/swagger).
+
 In another terminal, import the example dataset and verify all three scenarios:
 
 ```sh
