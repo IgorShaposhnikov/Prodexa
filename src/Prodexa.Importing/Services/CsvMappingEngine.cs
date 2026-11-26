@@ -165,17 +165,23 @@ public sealed class CsvMappingEngine(CsvTargetCatalog catalog)
         {
             if (sourceFormat is "unix_seconds" or "unix_milliseconds")
             {
-                if (long.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var epoch))
+                if (decimal.TryParse(value, NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var epoch))
                 {
                     try
                     {
-                        return sourceFormat == "unix_seconds"
-                            ? DateTimeOffset.FromUnixTimeSeconds(epoch)
-                            : DateTimeOffset.FromUnixTimeMilliseconds(epoch);
+                        var ticksPerUnit = sourceFormat == "unix_seconds"
+                            ? TimeSpan.TicksPerSecond
+                            : TimeSpan.TicksPerMillisecond;
+                        var ticks = epoch * ticksPerUnit;
+
+                        if (ticks == decimal.Truncate(ticks))
+                        {
+                            return DateTimeOffset.UnixEpoch.AddTicks(decimal.ToInt64(ticks));
+                        }
                     }
-                    catch (ArgumentOutOfRangeException)
+                    catch (Exception exception) when (exception is ArgumentOutOfRangeException or OverflowException)
                     {
-                        // The timestamp is invalid and will be reported with its source row.
+                        // Out-of-range timestamps are reported with their source row.
                     }
                 }
             }
