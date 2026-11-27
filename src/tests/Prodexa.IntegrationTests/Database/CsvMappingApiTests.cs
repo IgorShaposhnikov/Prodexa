@@ -163,6 +163,8 @@ public sealed class CsvMappingApiTests(PostgreSqlFixture database)
         Assert.NotNull(report);
         Assert.Equal(2, report.EventCount);
         Assert.Equal(90m, report.DowntimeMinutes);
+        Assert.Equal(60m, report.PlannedDowntimeMinutes);
+        Assert.Equal(60m, report.UnplannedDowntimeMinutes);
         Assert.Equal(25m, report.AvailabilityPercent);
 
         await using var context = database.CreateContext();

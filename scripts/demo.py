@@ -69,6 +69,8 @@ def run_demo(base_url):
 
     if downtime["eventCount"] != 2 or downtime["downtimeMinutes"] != 60:
         raise AssertionError("UC02 incorrectly combined equipment downtime.")
+    if downtime["unplannedDowntimeMinutes"] != 60 or downtime["plannedDowntimeMinutes"] != 0:
+        raise AssertionError("UC02 incorrectly separated planned and unplanned downtime.")
     if downtime["availabilityPercent"] != 75:
         raise AssertionError("UC02 produced an unexpected availability percentage.")
 
@@ -83,7 +85,7 @@ def run_demo(base_url):
     print(f"Imported: {imported['importedCount']}, skipped: {imported['skippedCount']}")
     print(f"Replay: {replay['skippedCount']} unchanged source revisions")
     print("UC01: J-01 has 40 pieces remaining and is 120 minutes overdue")
-    print("UC02: EQ-01 downtime is 60 minutes; availability is 75%")
+    print("UC02: EQ-01 unplanned downtime is 60 minutes; availability is 75%")
     print("UC03: J-02 net material usage is 110 kg; overconsumption is 10 kg (10%)")
     print("All demo scenarios passed.")
 

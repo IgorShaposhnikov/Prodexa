@@ -70,6 +70,8 @@ public sealed class DemoDatasetTests(PostgreSqlFixture database)
         Assert.NotNull(downtime);
         Assert.Equal(2, downtime.EventCount);
         Assert.Equal(60m, downtime.DowntimeMinutes);
+        Assert.Equal(60m, downtime.UnplannedDowntimeMinutes);
+        Assert.Equal(0m, downtime.PlannedDowntimeMinutes);
         Assert.Equal(75m, downtime.AvailabilityPercent);
 
         var variances = await client.GetFromJsonAsync<List<MaterialConsumptionVariance>>(

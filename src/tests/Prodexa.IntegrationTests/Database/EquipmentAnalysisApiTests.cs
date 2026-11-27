@@ -52,7 +52,50 @@ public sealed class EquipmentAnalysisApiTests(PostgreSqlFixture database)
         Assert.Equal(At(12, 0), report.PeriodEnd);
         Assert.Equal(2, report.EventCount);
         Assert.Equal(60m, report.DowntimeMinutes);
+        Assert.Equal(60m, report.UnplannedDowntimeMinutes);
+        Assert.Equal(0m, report.PlannedDowntimeMinutes);
         Assert.Equal(75m, report.AvailabilityPercent);
+    }
+
+    /// <summary>
+    /// Planned and unplanned durations remain separate when their intervals overlap.
+    /// </summary>
+    [Fact]
+    public async Task GetDowntime_SeparatesPlannedAndUnplannedIntervals()
+    {
+        var equipmentId = $"EQ-{Guid.NewGuid():N}";
+
+        await using (var context = database.CreateContext())
+        {
+            var equipment = new EquipmentResource { Id = equipmentId };
+            var plannedDowntime = new Downtime
+            {
+                Id = $"D-{Guid.NewGuid():N}",
+                EquipmentId = equipmentId,
+                StartAt = At(8, 30),
+                EndAt = At(10, 0),
+                ReasonCode = "MAINTENANCE",
+                IsPlanned = true
+            };
+
+            var firstDowntime = CreateDowntime(equipmentId, At(7, 50), At(8, 20));
+            var overlappingDowntime = CreateDowntime(equipmentId, At(8, 10), At(9, 0));
+
+            context.Equipment.Add(equipment);
+            context.Downtimes.AddRange(plannedDowntime, firstDowntime, overlappingDowntime);
+            await context.SaveChangesAsync();
+        }
+
+        var response = await GetReportAsync(equipmentId, At(8, 0), At(12, 0));
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var report = await response.Content.ReadFromJsonAsync<EquipmentDowntimeReport>();
+        Assert.NotNull(report);
+        Assert.Equal(3, report.EventCount);
+        Assert.Equal(120m, report.DowntimeMinutes);
+        Assert.Equal(90m, report.PlannedDowntimeMinutes);
+        Assert.Equal(60m, report.UnplannedDowntimeMinutes);
+        Assert.Equal(50m, report.AvailabilityPercent);
     }
 
     /// <summary>
@@ -82,6 +125,8 @@ public sealed class EquipmentAnalysisApiTests(PostgreSqlFixture database)
         Assert.NotNull(report);
         Assert.Equal(2, report.EventCount);
         Assert.Equal(60m, report.DowntimeMinutes);
+        Assert.Equal(60m, report.UnplannedDowntimeMinutes);
+        Assert.Equal(0m, report.PlannedDowntimeMinutes);
         Assert.Equal(0m, report.AvailabilityPercent);
     }
 
@@ -107,6 +152,8 @@ public sealed class EquipmentAnalysisApiTests(PostgreSqlFixture database)
         Assert.NotNull(report);
         Assert.Equal(0, report.EventCount);
         Assert.Equal(0m, report.DowntimeMinutes);
+        Assert.Equal(0m, report.UnplannedDowntimeMinutes);
+        Assert.Equal(0m, report.PlannedDowntimeMinutes);
         Assert.Equal(100m, report.AvailabilityPercent);
     }
 
