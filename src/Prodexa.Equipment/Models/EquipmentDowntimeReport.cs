@@ -31,6 +31,16 @@ public sealed class EquipmentDowntimeReport
     public required decimal DowntimeMinutes { get; init; }
 
     /// <summary>
+    /// Minutes covered by planned downtime, counting overlapping planned intervals only once.
+    /// </summary>
+    public required decimal PlannedDowntimeMinutes { get; init; }
+
+    /// <summary>
+    /// Minutes covered by unplanned downtime, counting overlapping unplanned intervals only once.
+    /// </summary>
+    public required decimal UnplannedDowntimeMinutes { get; init; }
+
+    /// <summary>
     /// Percentage of the reporting window not covered by downtime, rounded to two decimal places.
     /// </summary>
     public required decimal AvailabilityPercent { get; init; }

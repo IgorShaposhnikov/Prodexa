@@ -46,6 +46,18 @@ public sealed class EquipmentAnalysisService(ProdexaDbContext context, DowntimeC
             .ToListAsync(cancellationToken);
 
         var downtimeDuration = calculator.CalculateTotalDuration(downtimes, equipmentId, periodStartUtc, periodEndUtc);
+        var plannedDuration = calculator.CalculateTotalDuration(
+            downtimes.Where(downtime => downtime.IsPlanned),
+            equipmentId,
+            periodStartUtc,
+            periodEndUtc);
+
+        var unplannedDuration = calculator.CalculateTotalDuration(
+            downtimes.Where(downtime => !downtime.IsPlanned),
+            equipmentId,
+            periodStartUtc,
+            periodEndUtc);
+
         var reportingDuration = periodEndUtc - periodStartUtc;
         var availabilityPercent = 100m * (reportingDuration.Ticks - downtimeDuration.Ticks) / reportingDuration.Ticks;
 
@@ -56,6 +68,8 @@ public sealed class EquipmentAnalysisService(ProdexaDbContext context, DowntimeC
             PeriodEnd = periodEnd,
             EventCount = downtimes.Count,
             DowntimeMinutes = downtimeDuration.Ticks / (decimal)TimeSpan.TicksPerMinute,
+            PlannedDowntimeMinutes = plannedDuration.Ticks / (decimal)TimeSpan.TicksPerMinute,
+            UnplannedDowntimeMinutes = unplannedDuration.Ticks / (decimal)TimeSpan.TicksPerMinute,
             AvailabilityPercent = Math.Round(availabilityPercent, 2)
         };
     }

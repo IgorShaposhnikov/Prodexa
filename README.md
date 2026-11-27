@@ -29,7 +29,7 @@ The script loads `samples/demo-batch.json`, checks idempotent replay, and verifi
 | Scenario | Expected result |
 | --- | --- |
 | UC01 — Production task J-01 | 60 accepted, 40 remaining, 120 minutes overdue |
-| UC02 — Equipment EQ-01 | 60 minutes downtime, 75% availability |
+| UC02 — Equipment EQ-01 | 60 minutes unplanned downtime, 75% availability |
 | UC03 — Task J-02 / MAT-A | 115 kg consumed − 5 kg returned = 110 kg; +10 kg (+10%) against the norm |
 
 Running the script again is safe: unchanged source revisions are skipped. To use another API address, supply `--url`.
@@ -51,5 +51,7 @@ dotnet test src/tests/Prodexa.Tests/Prodexa.Tests.csproj
 Integration tests require `PRODEXA_TEST_CONNECTION_STRING` pointing to a dedicated PostgreSQL database. GitHub Actions supplies PostgreSQL automatically.
 
 See [import formats](docs/importing.md) for the supported JSON and CSV schemas, and [configurable CSV mapping](docs/csv-mapping.md) to discover target fields, save source-specific mapping profiles, preview conversions and import arbitrary CSV columns using Swagger UI.
+
+The equipment report exposes total, planned and unplanned downtime separately. Each duration is the union of the relevant intervals clipped to the reporting window. Planned and unplanned durations can overlap, so their sum may exceed total downtime. Availability is the fraction of the full reporting window not covered by any recorded downtime; it is not an OEE metric or a measure of scheduled production time.
 
 Apache AGE remains a proposed extension; the current implementation uses relational PostgreSQL storage.
